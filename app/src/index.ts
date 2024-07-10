@@ -1,53 +1,70 @@
 import { Hono } from "hono";
-
+import scraper from "./scraper";
 const app = new Hono();
-const base_url = "/api"
-let data = [
-  {
-    id: 1,
-    firstName: "Bryce",
-    lastName: "Harper",
-  },
-  {
-    id: 2,
-    firstName: "Trea",
-    lastName: "Turner",
-  },
-  {
-    id: 3,
-    firstName: "Bryson",
-    lastName: "Stott",
-  },
-];
+const baseUrl = "/api";
 
+/**
+ * handles HTTP requests returning a response that couldn't find any data.
+ *
+ * @param {Context} c
+ * @returns {Text}
+ */
 app.notFound((c) => {
   return c.text("Data not found...", 404);
 });
 
+/**
+ * handles internal server errors that occurred in response returned.
+ *
+ * @param {Context} c
+ * @returns {Text}
+ */
 app.onError((err, c) => {
   console.error({ message: err.message });
   return c.text("Internal Server Error occurred...", 500);
 });
 
-app.get(`${base_url}/`, (c) => c.json(data));
+/**
+ * returns all periodic table data from getAllElements function
+ *
+ * @param {Context} c
+ * @returns {JSON}
+ */
+app.get(`${baseUrl}/`, async (c) => {
+  let elementsData = await scraper.getAllElements();
+  return c.json(elementsData);
+});
 
-app.get(`${base_url}/:id`, (c) => {
+app.get(`${baseUrl}/:id`, async (c) => {
+  /**
+   * returns periodic table element data by given ID.
+   *
+   * @param {Context} c
+   * @returns {JSON}
+   */
   const { id } = c.req.param();
-  const filteredData = data.filter((data) => data.id === parseInt(id));
-  if (filteredData.length === 0) return c.json({"status": 404, "message": "Data not found..."})
+  let elementsData = await scraper.getAllElements();
+  const filteredData = elementsData.filter(
+    (data: any) => data.id === parseInt(id)
+  )[0];
+  if (filteredData.length === 0)
+    return c.json({ status: 404, message: "Data not found..." });
   return c.json(filteredData);
 });
 
-app.post(`${base_url}/`, async (c) => {
-  const body = await c.req.json();
-  if (!body) return c.json({"status": 401, "message": "Request Payload is required..."})
-  const newEntry = {
-    id: data.length + 1,
-    firstName: body.firstName,
-    lastName: body.lastName,
-  };
-  data.push(newEntry);
-  return c.json({ data: newEntry });
+app.get(`${baseUrl}/symbol/:symbol`, async (c) => {
+  /**
+   * returns periodic table element data by given element symbol.
+   *
+   * @param {Context} c
+   * @returns {JSON}
+   */
+  const { symbol } = c.req.param();
+  let elementData = await scraper.getElementBySymbol(symbol);
+  if (elementData.name.length === 0) {
+    return c.json({ status: 404, message: "Data not found..." });
+  }
+  return c.json(elementData);
 });
 
 export default {
