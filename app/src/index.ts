@@ -30,7 +30,7 @@ app.onError((err, c) => {
  * @param {Context} c
  * @returns {JSON}
  */
-app.get(`${baseUrl}/`, async (c) => {
+app.on("GET", [`${baseUrl}/`, "/"], async (c) => {
   let elementsData = await scraper.getAllElements();
   return c.json(elementsData);
 });
@@ -65,6 +65,20 @@ app.get(`${baseUrl}/symbol/:symbol`, async (c) => {
     return c.json({ status: 404, message: "Data not found..." });
   }
   return c.json(elementData);
+});
+
+app.get(`${baseUrl}/group/:group`, async (c) => {
+  /**
+   * TODO - Add GET endpoint to filter data by group name.
+   * 
+   * returns periodic table element data by given element group name
+   * Ex: Noble Gas
+   *
+   * @async
+   * @param {Context} c
+   * @returns {JSON}
+   */
+  return;
 });
 
 export default {

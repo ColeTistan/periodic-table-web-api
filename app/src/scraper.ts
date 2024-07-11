@@ -20,7 +20,7 @@ const capitalizeWords =
 const getLoadedData = async (url: string) => {
   /**
    * returns cheerio object of parsed document to scrape data.
-   * 
+   *
    * @param {string} url
    * @returns {Cheerio} $
    */
@@ -34,21 +34,23 @@ const getAllElements = async () => {
   /**
    * traverses loaded document to scrape data from baseUrl
    * and return array of elements with appended data to construct web API.
-   * 
+   *
    * @returns {any} elements
    */
   const elements: any = [];
   const $ = await getLoadedData(baseUrl);
   $("table tr").each((i: any, element: any) => {
+    const htmlUrl = `${elementUrl}/${$(element).find("a").attr("href")}`;
     const row = $(element)
       .find("td")
       .map((j: any, item: any) => $(item).text().trim())
       .get();
     let elementObj = {
-      id: i,
+      id: parseInt(row[0]),
       name: row[2],
       symbol: row[1],
       atomicNumber: parseInt(row[0]),
+      url: htmlUrl,
     };
     elements.push(elementObj);
   });
@@ -80,6 +82,7 @@ const getElementBySymbol = async (symbol: string) => {
   });
 
   const elementObj = {
+    id: parseInt(tableRows[0]),
     name: elementName,
     groupName: groupName,
     atomicNumber: parseInt(tableRows[0]),

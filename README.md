@@ -4,4 +4,4 @@ Tech Stack (CHOBE):
 - Cheerio
 - Hono
 - Bun
-- eJS
+- HTMX
