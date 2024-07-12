@@ -4,18 +4,17 @@ const baseUrl =
   "https://www.periodni.com/elements_names_sorted_alphabetically.html";
 const elementUrl = "https://www.periodni.com";
 
-const capitalizeWords =
+const capitalizeWords = (stringData: any) => {
   /**
    * capitalizes first letter for given string of words.
    *
    * @param {any} stringData
    * @returns {string}
    */
-  (stringData: any) => {
-    return stringData.toLowerCase().replace(/\b./g, (l: any) => {
-      return l.toUpperCase();
-    });
-  };
+  return stringData.toLowerCase().replace(/\b./g, (l: any) => {
+    return l.toUpperCase();
+  });
+};
 
 const getLoadedData = async (url: string) => {
   /**
@@ -57,48 +56,92 @@ const getAllElements = async () => {
   return elements.slice(1);
 };
 
+const getElementById = async (id: any) => {
+  try {
+    let elementsData = await getAllElements();
+    const filteredData = elementsData.filter(
+      (data: any) => data.id === parseInt(id)
+    )[0];
+    if (filteredData.length === 0) {
+      return { status: 404, message: "Data not found..." };
+    }
+    return filteredData;
+  } catch (err: any) {
+    console.error({ message: err.message });
+  }
+};
+
 const getElementBySymbol = async (symbol: string) => {
   /**
    * traverses HTML document with given element symbol
    * and constructs a JSON Object of a specified element.
-   * @returns {JSON} elementObj
+   * @returns {Array} filteredData
    */
-  const $ = await getLoadedData(`${elementUrl}/${symbol.toLowerCase()}.html`);
-  const body = $("#ebody");
-  // Get element name and clean inner text
-  const elementName = capitalizeWords(body.find("h1").text());
-  let groupName = capitalizeWords(body.find("p.txt-c").text());
-  if (groupName.length === 0) {
-    groupName = "N/A";
+  const elementsBySymbol: any = [];
+  try {
+    const $ = await getLoadedData(`${elementUrl}/${symbol.toLowerCase()}.html`);
+    const body = $("#ebody");
+    // Get element name and clean inner text
+    const elementName = capitalizeWords(body.find("h1").text());
+    let groupName = capitalizeWords(body.find("p.txt-c").text());
+    if (groupName.length === 0) {
+      groupName = "N/A";
+    }
+    if (groupName.includes("Transition Element: ")) {
+      groupName = groupName.split(":").pop().toString().trim();
+    }
+
+    const tableRows: any = [];
+    body.find("table:first tbody tr").each((i: any, item: any) => {
+      const row = $(item).find("td").text().split(":").pop();
+      tableRows.push(row);
+    });
+
+    if (isNaN(tableRows[0])) {
+      return { status: 404, message: "Data not found..." };
+    }
+
+    const elementObj = {
+      id: parseInt(tableRows[0]),
+      name: elementName,
+      groupName: groupName,
+      atomicNumber: parseInt(tableRows[0]),
+      groupNumbers: parseInt(tableRows[1]),
+      periodNumber: parseInt(tableRows[2]),
+      electronicConfig: tableRows[3],
+      formalOxidationNumber: tableRows[4],
+      electronegativities: tableRows[5],
+      atomicRadius: tableRows[6],
+      relativeAtomicMass: tableRows[7],
+    };
+    elementsBySymbol.push(elementObj);
+    return elementsBySymbol;
+  } catch (err: any) {
+    console.error({ message: err.message });
   }
-  if (groupName.includes("Transition Element: ")) {
-    groupName = groupName.split(":").pop().toString().trim();
+};
+
+const getElementByGroupName = async (groupName: string) => {
+  const elementsByGroupName = [];
+  const elements = await getAllElements();
+  const newGroupName = capitalizeWords(groupName);
+  for (let i = 0; i <= elements.length - 1; i++) {
+    const elementById = await getElementById(elements[i].id);
+    const elementBySymbol = await getElementBySymbol(elementById.symbol);
+    if (elementBySymbol[0].groupName !== newGroupName) {
+      continue;
+    } else if (!elementBySymbol) {
+      return { status: 404, message: "Data not found..." };
+    } else {
+      elementsByGroupName.push(elementBySymbol[0]);
+    }
   }
-
-  const tableRows: any = [];
-  body.find("table:first tbody tr").each((i: any, item: any) => {
-    const row = $(item).find("td").text().split(":").pop();
-    tableRows.push(row);
-  });
-
-  const elementObj = {
-    id: parseInt(tableRows[0]),
-    name: elementName,
-    groupName: groupName,
-    atomicNumber: parseInt(tableRows[0]),
-    groupNumbers: parseInt(tableRows[1]),
-    periodNumber: parseInt(tableRows[2]),
-    electronicConfig: tableRows[3],
-    formalOxidationNumber: tableRows[4],
-    electronegativities: tableRows[5],
-    atomicRadius: tableRows[6],
-    relativeAtomicMass: tableRows[7],
-  };
-
-  return elementObj;
+  return elementsByGroupName;
 };
 
 export default {
   getAllElements,
+  getElementById,
   getElementBySymbol,
+  getElementByGroupName
 };

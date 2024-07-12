@@ -31,8 +31,8 @@ app.onError((err, c) => {
  * @returns {JSON}
  */
 app.on("GET", [`${baseUrl}/`, "/"], async (c) => {
-  let elementsData = await scraper.getAllElements();
-  return c.json(elementsData);
+  let elements = await scraper.getAllElements();
+  return c.json(elements);
 });
 
 app.get(`${baseUrl}/:id`, async (c) => {
@@ -43,10 +43,7 @@ app.get(`${baseUrl}/:id`, async (c) => {
    * @returns {JSON}
    */
   const { id } = c.req.param();
-  let elementsData = await scraper.getAllElements();
-  const filteredData = elementsData.filter(
-    (data: any) => data.id === parseInt(id)
-  )[0];
+  const filteredData = await scraper.getElementById(id);
   if (filteredData.length === 0)
     return c.json({ status: 404, message: "Data not found..." });
   return c.json(filteredData);
@@ -60,17 +57,17 @@ app.get(`${baseUrl}/symbol/:symbol`, async (c) => {
    * @returns {JSON}
    */
   const { symbol } = c.req.param();
-  let elementData = await scraper.getElementBySymbol(symbol);
-  if (elementData.name.length === 0) {
+  let elementsBySymbol = await scraper.getElementBySymbol(symbol);
+  if (elementsBySymbol[0].name.length === 0) {
     return c.json({ status: 404, message: "Data not found..." });
   }
-  return c.json(elementData);
+  return c.json(elementsBySymbol);
 });
 
-app.get(`${baseUrl}/group/:group`, async (c) => {
+app.get(`${baseUrl}/group/:groupName`, async (c) => {
   /**
    * TODO - Add GET endpoint to filter data by group name.
-   * 
+   *
    * returns periodic table element data by given element group name
    * Ex: Noble Gas
    *
@@ -78,7 +75,9 @@ app.get(`${baseUrl}/group/:group`, async (c) => {
    * @param {Context} c
    * @returns {JSON}
    */
-  return;
+  const { groupName } = c.req.param();
+  const elementsByGroupName = await scraper.getElementByGroupName(groupName);
+  return c.json(elementsByGroupName)
 });
 
 export default {
