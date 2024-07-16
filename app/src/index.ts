@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import scraper from "./scraper";
 import { file } from "bun";
 const app = new Hono();
-const baseUrl = "/api";
+const baseUrl = "https://periodic-table-web-api.onrender.com//api";
 
 /**
  * handles HTTP requests returning a response that couldn't find any data.
