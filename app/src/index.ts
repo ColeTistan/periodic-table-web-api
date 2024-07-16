@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import scraper from "./scraper";
+import { file } from "bun";
 const app = new Hono();
 const baseUrl = "/api";
 
@@ -24,13 +25,17 @@ app.onError((err, c) => {
   return c.text("Internal Server Error occurred...", 500);
 });
 
+app.get("/", (c) => {
+  return new Response(file(__dirname + "/index.html"))
+});
+
 /**
  * returns all periodic table data from getAllElements function
  *
  * @param {Context} c
  * @returns {JSON}
  */
-app.on("GET", [`${baseUrl}/`, "/"], async (c) => {
+app.get(`${baseUrl}/`, async (c) => {
   let elements = await scraper.getAllElements();
   return c.json(elements);
 });
@@ -77,7 +82,7 @@ app.get(`${baseUrl}/group/:groupName`, async (c) => {
    */
   const { groupName } = c.req.param();
   const elementsByGroupName = await scraper.getElementByGroupName(groupName);
-  return c.json(elementsByGroupName)
+  return c.json(elementsByGroupName);
 });
 
 export default {

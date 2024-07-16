@@ -71,7 +71,7 @@ const getElementById = async (id: any) => {
   }
 };
 
-const getElementBySymbol = async (symbol: string) => {
+const getElementBySymbol = async (symbol: String) => {
   /**
    * traverses HTML document with given element symbol
    * and constructs a JSON Object of a specified element.
@@ -121,27 +121,23 @@ const getElementBySymbol = async (symbol: string) => {
   }
 };
 
-const getElementByGroupName = async (groupName: string) => {
-  const elementsByGroupName = [];
-  const elements = await getAllElements();
+const getElementByGroupName = async (groupName: String) => {
+  let elementsArr: any = [];
+  const elementsData = await getAllElements();
   const newGroupName = capitalizeWords(groupName);
-  for (let i = 0; i <= elements.length - 1; i++) {
-    const elementById = await getElementById(elements[i].id);
-    const elementBySymbol = await getElementBySymbol(elementById.symbol);
-    if (elementBySymbol[0].groupName !== newGroupName) {
-      continue;
-    } else if (!elementBySymbol) {
-      return { status: 404, message: "Data not found..." };
-    } else {
-      elementsByGroupName.push(elementBySymbol[0]);
-    }
-  }
-  return elementsByGroupName;
+  await Promise.all(
+    elementsData.map(async (row: any) => {
+      const elementById = await getElementById(row.id);
+      const elementBySymbol = await getElementBySymbol(elementById.symbol);
+      elementsArr.push(elementBySymbol[0]);
+    })
+  );
+  return elementsArr.filter((data: any) => data.groupName === newGroupName);
 };
 
 export default {
   getAllElements,
   getElementById,
   getElementBySymbol,
-  getElementByGroupName
+  getElementByGroupName,
 };

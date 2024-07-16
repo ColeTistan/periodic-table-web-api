@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://unpkg.com/htmx.org@2.0.1"
+      integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css"
+    />
+    <style>
+      html,
+      body {
+        min-height: 100dvh;
+      }
+
+      body > footer {
+        position: sticky;
+        top: 100dvh;
+      }
+    </style>
+    <title>Periodic Table API</title>
+  </head>
+  <header class="pico-background-azure-900">
+    <nav class="container">
+      <ul>
+        <li><strong>Periodic Table API</strong></li>
+      </ul>
+      <ul>
+        <li>
+          <a
+            class="contrast pico-color-zinc-50"
+            href="https://github.com/ColeTistan/periodic-table-web-api"
+            target="_blank"
+            >Github Repo</a
+          >
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <body class="pico-background-azure-950">
+    <main class="container">
+      <article class="pico-background-azure-400" style="text-align: center">
+        <h3 class="pico-color-zinc-50">Please Note!</h3>
+        <p class="pico-color-zinc-50">
+          The Following endpoint(s) are currently being tested:
+          <b>Get Element by Group</b>
+        </p>
+      </article>
+      <div class="grid" style="justify-items: center">
+        <div>
+          <label for="elements">Get All Elements <br> /api/</label>
+          <button role="button" hx-get="/api/" hx-target="#json-results">
+            Submit
+          </button>
+        </div>
+        <div>
+          <label for="element">Get Element by ID <br> /api/:id</label>
+          <button role="button" hx-get="/api/5" hx-target="#json-results">
+            Submit
+          </button>
+        </div>
+        <div>
+          <label for="symbol"
+            >Get Element by Symbol <br> /api/symbol/:symbol</label
+          >
+          <button
+            role="button"
+            hx-get="/api/symbol/Ag"
+            hx-target="#json-results"
+          >
+            Submit
+          </button>
+        </div>
+        <div>
+          <label for="group">Get Element by Group <br> /api/group:group</label>
+          <button
+            role="button"
+            hx-get="/api/group/Noble Gas"
+            hx-target="#json-results"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+      <br />
+      <div class="grid">
+        <div id="endpoint-results">
+          <pre>
+            <code id="json-results">
+              JSON results here...
+            </code>
+          </pre>
+        </div>
+      </div>
+    </main>
+    <footer class="pico-background-azure-900">
+      <div class="grid container" style="text-align: center">
+        <div>&copy; Cole Tistan</div>
+        <div>
+          <a
+            class="contrast pico-color-zinc-50"
+            href="https://github.com/ColeTistan/"
+            target="_blank"
+            >My Github</a
+          >
+        </div>
+        <div>
+          <a
+            class="contrast pico-color-zinc-50"
+            href="https://cctistan.com/"
+            target="_blank"
+            >My Portfolio</a
+          >
+        </div>
+        <div>
+          <a
+          class="contrast pico-color-zinc-50"
+          href="https://www.periodni.com/elements_names_sorted_alphabetically.html"
+          target="_blank"
+          >Source</a
+        >
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
