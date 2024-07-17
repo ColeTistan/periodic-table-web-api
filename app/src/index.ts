@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import scraper from "./scraper";
 import { file } from "bun";
 const app = new Hono();
-const baseUrl = "https://periodic-table-web-api.onrender.com//api";
+const baseUrl = "/api";
 
 /**
  * handles HTTP requests returning a response that couldn't find any data.
@@ -25,17 +25,13 @@ app.onError((err, c) => {
   return c.text("Internal Server Error occurred...", 500);
 });
 
-app.get("/", (c) => {
-  return new Response(file(__dirname + "/index.html"))
-});
-
 /**
  * returns all periodic table data from getAllElements function
  *
  * @param {Context} c
  * @returns {JSON}
  */
-app.get(`${baseUrl}/`, async (c) => {
+app.on("GET", ["/", `${baseUrl}/`], async (c) => {
   let elements = await scraper.getAllElements();
   return c.json(elements);
 });
@@ -88,4 +84,5 @@ app.get(`${baseUrl}/group/:groupName`, async (c) => {
 export default {
   port: 3000,
   fetch: app.fetch,
+  
 };
