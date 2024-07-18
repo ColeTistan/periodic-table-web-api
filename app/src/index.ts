@@ -1,8 +1,10 @@
+import { config } from "dotenv";
 import { Hono } from "hono";
 import scraper from "./scraper";
-import { file } from "bun";
 const app = new Hono();
 const baseUrl = "/api";
+
+config();
 
 /**
  * handles HTTP requests returning a response that couldn't find any data.
@@ -82,7 +84,6 @@ app.get(`${baseUrl}/group/:groupName`, async (c) => {
 });
 
 export default {
-  port: 3000,
+  port: process.env.PORT || 3000,
   fetch: app.fetch,
-  
 };
