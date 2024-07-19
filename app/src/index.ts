@@ -83,7 +83,4 @@ app.get(`${baseUrl}/group/:groupName`, async (c) => {
   return c.json(elementsByGroupName);
 });
 
-export default {
-  port: process.env.PORT || 3000,
-  fetch: app.fetch,
-};
+export default app;
